@@ -7,7 +7,6 @@ data Vec : Type -> Nat -> Type where
     Nil : Vec a Z 
     (::) : a -> Vec a n -> Vec a (S n)
 
-
 export 
 replicate : a -> (n : Nat) -> Vec a n 
 replicate x Z = Nil 
@@ -27,4 +26,4 @@ showVec showElement sep (x1 :: x2 :: xs ) = (showElement x1) ++ sep ++ (showVec 
 export 
 insert : Vec a n -> Fin n -> a -> Vec a n 
 insert (_ :: xs) FZ new = new :: xs 
-insert (x :: xs) (FS ix) new = x :: insert xs ix new   
+insert (x :: xs) (FS ix) new = x :: (insert xs ix new)
