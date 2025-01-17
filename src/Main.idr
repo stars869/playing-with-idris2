@@ -20,20 +20,22 @@ parsePos s = case String.words s of
         (\fy => Just (MkPosition fx fy))))) 
     _ => Nothing 
 
-getPosInput : IO (Maybe Position)
-getPosInput = do
-    putStrLn "Enter position (e.g., \"0 1\"):"
-    input <- getLine
-    pure (parsePos input)
+getPosInput : GameState -> IO Position
+getPosInput state = do
+    input <- getLine 
+    mPos <- pure (parsePos input) 
+    case mPos of 
+        Just pos => (if (Tictactoe.isEmpty (currentBoard state) pos) then pure pos else (putStrLn "Invalid position, please input again:" >>= (\_ => getPosInput state))) 
+        Nothing => putStrLn "Invalid position, please input again:" >>= (\_ => getPosInput state)
 
 gameLoop : GameState -> IO ()
-gameLoop state = do
-    putStr (Tictactoe.showBoard (currentBoard state))
-    mPos <- getPosInput 
-    case mPos of 
-        Just pos => gameLoop (Tictactoe.transition state pos)
-        Nothing => gameLoop state
+gameLoop state = do 
+    putStrLn (Tictactoe.showBoard (currentBoard state))
+    putStrLn "Enter position (e.g., \"0 1\"):"
+    pos <- getPosInput state 
+    gameLoop (Tictactoe.transition state pos) 
 
+    
 main : IO ()
 main = do 
     putStrLn "Tic tac toe?"

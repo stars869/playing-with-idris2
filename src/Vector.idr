@@ -27,3 +27,9 @@ export
 insert : Vec a n -> Fin n -> a -> Vec a n 
 insert (_ :: xs) FZ new = new :: xs 
 insert (x :: xs) (FS ix) new = x :: (insert xs ix new)
+
+export 
+getAt : Vec a n -> Fin n -> a 
+getAt (x :: xs) FZ = x 
+getAt (x :: xs) (FS ix) = getAt xs ix 
+
