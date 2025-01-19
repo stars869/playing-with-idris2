@@ -22,27 +22,29 @@ parsePos s = case String.words s of
 
 getPosInput : GameState -> IO Position
 getPosInput state = do
+    putStrLn "Enter position (e.g., \"0 1\"):"
     input <- getLine 
     mPos <- pure (parsePos input) 
     case mPos of 
-        Just pos => (if (Tictactoe.isEmpty (currentBoard state) pos) then pure pos else (putStrLn "Invalid position, please input again:" >>= (\_ => getPosInput state))) 
-        Nothing => putStrLn "Invalid position, please input again:" >>= (\_ => getPosInput state)
+        Just pos => (if (Tictactoe.isEmpty (currentBoard state) pos) then pure pos else (putStrLn "Invalid position." >>= (\_ => getPosInput state))) 
+        Nothing => putStrLn "Invalid position." >>= (\_ => getPosInput state)
 
 gameLoop : GameState -> IO ()
 gameLoop state = do 
-    putStrLn (Tictactoe.showBoard (currentBoard state))
-    putStrLn "Enter position (e.g., \"0 1\"):"
     pos <- getPosInput state 
     newState <- pure (Tictactoe.transition state pos)
+    putStrLn (Tictactoe.showBoard (currentBoard newState))
     maybeWinner <- pure (Tictactoe.getWinner (currentBoard newState))
     case maybeWinner of 
         Just player => putStrLn ((Tictactoe.showPlayer player) ++ " has won!")
         Nothing => case Tictactoe.isFull (currentBoard newState) of 
             True => putStrLn "It's a tie~"
             False => gameLoop (newState) 
-            
+
     
 main : IO ()
 main = do 
     putStrLn "Tic tac toe?"
-    gameLoop (MkGameState Tictactoe.emptyBoard PlayerX)
+    initialState <- pure (MkGameState Tictactoe.emptyBoard PlayerX)
+    putStrLn (Tictactoe.showBoard (currentBoard initialState))
+    gameLoop initialState
