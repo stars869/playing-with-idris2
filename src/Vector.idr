@@ -33,3 +33,25 @@ getAt : Vec a n -> Fin n -> a
 getAt (x :: xs) FZ = x 
 getAt (x :: xs) (FS ix) = getAt xs ix 
 
+export 
+head : Vec a (S n) -> a 
+head (x :: _) = x 
+
+export 
+tail : Vec a (S n) -> Vec a n
+tail (_ :: xs) = xs
+
+export 
+all : Eq a => (a -> Bool) -> Vec a n -> Bool  
+all f Nil = True 
+all f (x :: xs) = if f x then (all f xs) else False 
+
+export 
+any : Eq a => (a -> Bool) -> Vec a n -> Bool 
+any f Nil = False 
+any f (x :: xs) = if f x then True else (any f xs) 
+
+export
+concat : Vec a m -> Vec a n -> Vec a (m + n)
+concat Nil ys = ys 
+concat (x :: xs) ys = x :: (concat xs ys)  

@@ -10,11 +10,13 @@ data Mark : Type where
     O : Mark 
     Empty : Mark 
 
-eq : Mark -> Mark -> Bool 
-eq X X = True 
-eq O O = True 
-eq Empty Empty = True 
-eq _ _ = False 
+Eq Mark where  
+    X == X = True 
+    O == O = True 
+    Empty == Empty = True 
+    _ == _ = False 
+
+    x /= y = not (x == y)
 
 showMark : Mark -> String 
 showMark X = " X "
@@ -37,6 +39,11 @@ public export
 data Player : Type where 
     PlayerX : Player 
     PlayerO : Player 
+
+export 
+showPlayer : Player -> String 
+showPlayer PlayerX = "PlayerX"
+showPlayer PlayerO = "PlayerO"
 
 getMark : Player -> Mark 
 getMark PlayerX = X
@@ -65,4 +72,24 @@ transition (MkGameState board player) (MkPosition x y) = MkGameState (insert boa
 
 export 
 isEmpty : Board -> Position -> Bool 
-isEmpty board (MkPosition x y) = eq (Matrix.getAt board x y) Empty
+isEmpty board (MkPosition x y) = (Matrix.getAt board x y) == Empty
+
+export 
+isFull : Board -> Bool 
+isFull board = Vector.all (== True) (Vector.map (\row => Vector.all (/= Empty) row) board)
+
+export 
+checkWinner : Board -> Player -> Bool
+checkWinner board player =  anyRowWin (Matrix.rows board) || anyRowWin (Matrix.cols board) || anyRowWin (Matrix.diagonals board) where 
+    areSameMark : Vec Mark n -> Bool 
+    areSameMark v = Vector.all (== (getMark player)) v
+    anyRowWin : Vec (Vec Mark n) m -> Bool 
+    anyRowWin rows = Vector.any (== True) (Vector.map areSameMark rows)
+
+export 
+getWinner : Board -> Maybe Player 
+getWinner board = case checkWinner board PlayerX of 
+    True => Just PlayerX 
+    False => case checkWinner board PlayerO of
+        True => Just PlayerO 
+        False => Nothing 

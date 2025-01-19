@@ -33,8 +33,14 @@ gameLoop state = do
     putStrLn (Tictactoe.showBoard (currentBoard state))
     putStrLn "Enter position (e.g., \"0 1\"):"
     pos <- getPosInput state 
-    gameLoop (Tictactoe.transition state pos) 
-
+    newState <- pure (Tictactoe.transition state pos)
+    maybeWinner <- pure (Tictactoe.getWinner (currentBoard newState))
+    case maybeWinner of 
+        Just player => putStrLn ((Tictactoe.showPlayer player) ++ " has won!")
+        Nothing => case Tictactoe.isFull (currentBoard newState) of 
+            True => putStrLn "It's a tie~"
+            False => gameLoop (newState) 
+            
     
 main : IO ()
 main = do 
